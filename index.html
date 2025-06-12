@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Siva on Facebook HTML Page Creator</title>
+    <!-- <link rel="icon" type="image/x-icon" href="spm.ico"> --> <!-- You'll need to host this separately or embed as base64 if you want it in a single file and no external requests -->
+    <style>
+        :root {
+            --bg-color: #1E1E2F;
+            --text-color: #EAEAEA;
+            --header-bg: #2B2D42;
+            --accent-color: #FFD700;
+            --tool-card-bg: #3A3D5B;
+            --button-hover-bg: #E6C200;
+            --shadow-color: rgba(255, 215, 0, 0.15);
+            --input-bg: #2B2D42;
+            --input-border: #4A4E6D;
+            --input-text: #EAEAEA;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: var(--accent-color);
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        main {
+            flex-grow: 1;
+            padding: 30px 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .tool-grid {
+            display: grid;
+            gap: 25px;
+            grid-template-columns: repeat(3, 1fr); /* Desktop: 3 columns */
+        }
+
+        .tool-card {
+            background-color: var(--tool-card-bg);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-card h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .tool-card p {
+            font-size: 0.95em;
+            flex-grow: 1;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .tool-button, .action-button {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-size: 1em;
+            align-self: flex-start;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+        .tool-card:hover h2 {
+            color: var(--bg-color);
+        }
+        .tool-card:hover p {
+            color: var(--bg-color);
+            opacity: 1;
+        }
+
+        .tool-card:hover .tool-button {
+            background-color: var(--bg-color);
+            color: var(--accent-color);
+        }
+
+        .tool-button:hover, .action-button:hover {
+            background-color: var(--button-hover-bg);
+            transform: translateY(-2px);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: var(--tool-card-bg);
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-button {
+            color: var(--text-color);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            transition: color 0.2s ease;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--accent-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+        }
+
+        .modal label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .modal textarea {
+            width: calc(100% - 22px); /* Account for padding and border */
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            font-family: monospace;
+            font-size: 0.9em;
+            resize: vertical;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        .modal textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px var(--accent-color);
+        }
+
+        .modal .action-button {
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+        .modal .action-button:last-of-type {
+            margin-right: 0;
+        }
+
+
+        .output-actions {
+            margin-top: 10px;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            font-style: italic;
+            color: var(--accent-color);
+            min-height: 1.2em; /* Reserve space to prevent layout shift */
+        }
+
+        /* Responsive Grid Layout */
+        @media (max-width: 992px) { /* Tablet */
+            .tool-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            header h1 {
+                font-size: 1.8em;
+            }
+            .modal-content {
+                margin: 15% auto;
+                width: 85%;
+            }
+        }
+
+        @media (max-width: 768px) { /* Mobile */
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+            main {
+                padding: 20px 15px;
+            }
+            .tool-card {
+                padding: 20px;
+            }
+            .modal-content {
+                margin: 5% auto; /* Adjusted for potentially longer content on mobile */
+                padding: 20px;
+                width: 90%;
+            }
+            .modal h2 {
+                font-size: 1.3em;
+            }
+            .modal .action-button {
+                width: 100%; /* Full width buttons on small screens */
+                margin-right: 0;
+                margin-bottom: 10px;
+                box-sizing: border-box;
+            }
+            .output-actions .action-button:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        /* Optional Fade-in animation for tool cards (example, not used by default for single card) */
+        .tool-card.fade-in-element {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .tool-card.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<BODY oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
+    <header>
+        <h1>Siva's HTML Page Creator</h1>
+    </header>
+
+    <main>
+        <div class="tool-grid">
+            <div class="tool-card">
+                <h2>HTML Page Creator</h2>
+                <p>Paste your Facebook iframe embed code to generate a complete HTML page for sharing your DealReach post.</p>
+                <button class="tool-button" id="openHtmlCreatorBtn">Use Tool</button>
+            </div>
+            <!-- More tool cards can be added here in the future -->
+        </div>
+    </main>
+
+    <!-- Modal for the HTML Page Creator Tool -->
+    <div id="htmlCreatorModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">×</span>
+            <h2>Facebook Post HTML Page Creator</h2>
+            <p>Paste the iframe embed code from Facebook below. The tool will generate the full HTML page code for you.</p>
+            
+            <label for="iframeInput">Facebook Iframe Code:</label>
+            <textarea id="iframeInput" rows="5" placeholder="<iframe src='https://www.facebook.com/plugins/post.php?href=...' ...></iframe>"></textarea>
+            
+            <button id="generateHtmlBtn" class="action-button">Generate HTML</button>
+            
+            <div id="outputSection" style="display:none;">
+                <label for="generatedHtmlOutput">Generated HTML Code:</label>
+                <textarea id="generatedHtmlOutput" rows="15" readonly></textarea> <!-- Increased rows for better view -->
+                <div class="output-actions">
+                    <button id="copyHtmlBtn" class="action-button">Copy HTML</button>
+                    <button id="downloadHtmlBtn" class="action-button">Download .html File</button>
+                </div>
+            </div>
+            <p id="statusMessage" class="status-message"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Modal Elements and Logic ---
+            const htmlCreatorModal = document.getElementById('htmlCreatorModal');
+            const openHtmlCreatorBtn = document.getElementById('openHtmlCreatorBtn');
+            const closeButton = htmlCreatorModal.querySelector('.close-button');
+
+            function openModal(modal) {
+                if (modal) {
+                    modal.style.display = 'block';
+                }
+            }
+
+            function closeModal(modal) {
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
+
+            if (openHtmlCreatorBtn) {
+                openHtmlCreatorBtn.addEventListener('click', () => {
+                    openModal(htmlCreatorModal);
+                });
+            }
+
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    closeModal(htmlCreatorModal);
+                });
+            }
+
+            window.addEventListener('click', (event) => {
+                if (event.target === htmlCreatorModal) {
+                    closeModal(htmlCreatorModal);
+                }
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === "Escape" && htmlCreatorModal.style.display === 'block') {
+                    closeModal(htmlCreatorModal);
+                }
+            });
+
+            // --- HTML Page Creator Tool Logic ---
+            const iframeInput = document.getElementById('iframeInput');
+            const generateHtmlBtn = document.getElementById('generateHtmlBtn');
+            const generatedHtmlOutput = document.getElementById('generatedHtmlOutput');
+            const copyHtmlBtn = document.getElementById('copyHtmlBtn');
+            const downloadHtmlBtn = document.getElementById('downloadHtmlBtn');
+            const outputSection = document.getElementById('outputSection');
+            const statusMessage = document.getElementById('statusMessage');
+
+            const htmlPageTemplate = (iframeCode) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siva's Facebook Post</title>
+  <!-- <link rel="icon" type="image/x-icon" href="spm.ico" /> --> <!-- Favicon link for generated page -->
+  <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=68433345a7cb4a0019841b7c&product=sop' async='async'><\/script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js" type="text/javascript"><\/script>
+  <script type="text/javascript"> 
+      $(function () { $(this).bind("contextmenu", function (e) { e.preventDefault(); }); }); 
+  <\/script>
+  
+  <script>
+      document.onkeydown = function(e) {
+          if (e.ctrlKey && (e.keyCode === 85 )) { /* Ctrl+U */
+              return false;
+          }
+          if (e.keyCode === 123) { /* F12 */
+             return false;
+          }
+      };
+  <\/script>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    .follow-button,
+    .whatsapp-button {
+      display: inline-block;
+      font-weight: bold;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .follow-button {
+      background-color: #1877F2; /* Facebook Blue */
+      color: white;
+    }
+    .follow-button:hover {
+      background-color: #145dbf;
+    }
+    .whatsapp-button {
+      background-color: #25D366; /* WhatsApp Green */
+      color: white;
+    }
+    .whatsapp-button:hover {
+      background-color: #1da851;
+    }
+    .fb-embed-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      margin: 30px auto 0;
+      padding-top: 75%; /* 4:3 Aspect Ratio (adjust if needed, or if iframe has intrinsic height) */
+    }
+    .fb-embed-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      overflow: hidden;
+    }
+  <\/style>
+</head>
+<body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
+
+  <h2>Siva's Facebook Post</h2>
+  <div style="padding-top: 10px;"> </div>
+  <div class="follow-button" onclick="openFacebookApp()">ফেসবুকে ফলো করুন</div><br />
+  <div class="whatsapp-button" onclick="openWhatsApp()">হোয়াটসঅ্যাপে যোগাযোগ করুন</div>
+  <p><sub>(পুরো পোস্টটা পড়ার জন্যে ছবির উপরের ফেসবুক আইকনটায় ক্লিক করুন)</sub></p>
+
+  <div class="fb-embed-wrapper" role="region" aria-label="Embedded Facebook post from Siva">
+    <!--Embed BEGIN-->
+    ${iframeCode}
+    <!--Embed END-->
+  </div>
+
+  <script>
+    function openFacebookApp() {
+      const pageId = "145408038146333"; // Replace with your actual Page ID
+      const fallbackUrl = "https://facebook.com/socjhq"; // Replace with your page URL
+      // Attempt to open in the Facebook app
+      window.location = "fb://page/" + pageId;
+      // Fallback to browser after delay
+      setTimeout(() => {
+        window.location.href = fallbackUrl;
+      }, 1500);
+    }
+    function openWhatsApp() {
+      const phoneNumber = "919883787947"; // Replace with your actual WhatsApp number (no '+' or spaces)
+      const message = encodeURIComponent("Hi! I saw your post and want to connect.");
+      const waUrl = "https://wa.me/" + phoneNumber + "?text=" + message;
+      window.location.href = waUrl;
+    }
+  <\/script> 
+
+</body>
+</html>`;
+
+            if (generateHtmlBtn) {
+                generateHtmlBtn.addEventListener('click', () => {
+                    const iframeContent = iframeInput.value.trim();
+                    statusMessage.textContent = ''; 
+
+                    if (!iframeContent) {
+                        statusMessage.textContent = 'Error: Please paste the Facebook iframe code.';
+                        outputSection.style.display = 'none';
+                        return;
+                    }
+
+                    if (!iframeContent.toLowerCase().startsWith("<iframe") || !iframeContent.toLowerCase().endsWith("</iframe>")) {
+                        statusMessage.textContent = 'Error: Invalid iframe code. It should start with <iframe> and end with </iframe>.';
+                        outputSection.style.display = 'none';
+                        return;
+                    }
+                    
+                    statusMessage.textContent = 'Processing...';
+                    setTimeout(() => {
+                        try {
+                            const fullHtml = htmlPageTemplate(iframeContent);
+                            generatedHtmlOutput.value = fullHtml;
+                            outputSection.style.display = 'block';
+                            statusMessage.textContent = 'Success! HTML page code generated below.';
+                        } catch (error) {
+                            console.error("Error generating HTML:", error);
+                            statusMessage.textContent = 'Error: Could not generate HTML. Check console for details.';
+                            outputSection.style.display = 'none';
+                        }
+                    }, 300);
+                });
+            }
+
+            if (copyHtmlBtn) {
+                copyHtmlBtn.addEventListener('click', () => {
+                    if (!generatedHtmlOutput.value) {
+                        statusMessage.textContent = 'Nothing to copy yet.';
+                        return;
+                    }
+                    generatedHtmlOutput.select();
+                    generatedHtmlOutput.setSelectionRange(0, 999999); // Ensure full selection
+
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            statusMessage.textContent = 'Success: HTML copied to clipboard!';
+                        } else {
+                            statusMessage.textContent = 'Error: Could not copy HTML automatically. Please copy manually.';
+                        }
+                    } catch (err) {
+                        statusMessage.textContent = 'Error: Could not copy HTML. Please copy manually.';
+                        console.error('Copy failed: ', err);
+                    }
+                    window.getSelection().removeAllRanges(); // Deselect
+                });
+            }
+
+            if (downloadHtmlBtn) {
+                downloadHtmlBtn.addEventListener('click', () => {
+                    const htmlContent = generatedHtmlOutput.value;
+                    if (!htmlContent) {
+                        statusMessage.textContent = 'Error: No HTML content to download.';
+                        return;
+                    }
+                    try {
+                        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'dealreach_post_page.html';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(link.href);
+                        statusMessage.textContent = 'Success: HTML file download initiated!';
+                    } catch (error) {
+                        console.error("Error downloading file:", error);
+                        statusMessage.textContent = 'Error: Could not download file.';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
